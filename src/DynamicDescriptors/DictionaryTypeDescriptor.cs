@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 
 namespace DynamicDescriptors;
 
@@ -30,6 +31,25 @@ internal sealed class DictionaryTypeDescriptor : CustomTypeDescriptor, ICustomTy
     /// <param name="data">A dictionary mapping property names to property values.</param>
     public DictionaryTypeDescriptor(IDictionary<string, object> data)
         : this(data, null) { }
+
+    public DictionaryTypeDescriptor(IDictionary<string, (object, Type)> data)
+    {
+        if (data == null)
+        {
+            throw new ArgumentNullException(nameof(data));
+        }
+
+        _data = data.ToDictionary(i => i.Key, i => i.Value.Item1);
+        _propertyDescriptors = new List<DictionaryPropertyDescriptor>();
+
+        foreach (var pair in data)
+        {
+            var propertyDescriptor = new DictionaryPropertyDescriptor(_data, pair.Key, pair.Value.Item2);
+            propertyDescriptor.AddValueChanged(this, (s, e) => OnPropertyChanged(pair.Key));
+
+            _propertyDescriptors.Add(propertyDescriptor);
+        }
+    }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DictionaryTypeDescriptor"/> class.

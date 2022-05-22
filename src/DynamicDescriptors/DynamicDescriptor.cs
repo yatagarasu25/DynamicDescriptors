@@ -98,4 +98,26 @@ public static class DynamicDescriptor
 
         return new DynamicTypeDescriptor(descriptor);
     }
+
+    /// <summary>
+    /// Returns a new <see cref="DynamicTypeDescriptor"/> instance that exposes properties
+    /// defined by the data present in the specified dictionary.
+    /// </summary>
+    /// <param name="data">A dictionary mapping property names to property values.</param>
+    /// <param name="types">A dictionary mapping property names to property types.</param>
+    /// <returns>
+    /// A new <see cref="DynamicTypeDescriptor"/> instance that exposes properties defined
+    /// by the data present in the specified dictionary.
+    /// </returns>
+    public static DynamicTypeDescriptor CreateFromDictionary(IDictionary<string, (object, Type)> data)
+    {
+        if (data == null)
+        {
+            throw new ArgumentNullException(nameof(data));
+        }
+
+        var descriptor = new DictionaryTypeDescriptor(data);
+
+        return new DynamicTypeDescriptor(descriptor);
+    }
 }
