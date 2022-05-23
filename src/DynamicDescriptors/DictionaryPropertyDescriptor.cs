@@ -7,7 +7,7 @@ namespace DynamicDescriptors;
 /// <summary>
 /// A dictionary-backed implementation of <see cref="PropertyDescriptor"/>.
 /// </summary>
-internal sealed class DictionaryPropertyDescriptor : PropertyDescriptor
+public sealed class DictionaryPropertyDescriptor : PropertyDescriptor
 {
     /// <summary>
     /// A dictionary mapping property names to property values.
@@ -43,10 +43,7 @@ internal sealed class DictionaryPropertyDescriptor : PropertyDescriptor
     /// </summary>
     /// <param name="component">The component to test for reset capability.</param>
     /// <returns>true if resetting the component changes its value; otherwise, false.</returns>
-    public override bool CanResetValue(object component)
-    {
-        return false;
-    }
+    public override bool CanResetValue(object component) => false;
 
     /// <summary>
     /// Gets the type of the component this property is bound to.
@@ -110,8 +107,5 @@ internal sealed class DictionaryPropertyDescriptor : PropertyDescriptor
     /// The component with the property to be examined for persistence.
     /// </param>
     /// <returns>true if the property should be persisted; otherwise, false.</returns>
-    public override bool ShouldSerializeValue(object component)
-    {
-        return false;
-    }
+    public override bool ShouldSerializeValue(object component) => false;
 }

@@ -9,7 +9,7 @@ namespace DynamicDescriptors;
 /// <summary>
 /// A runtime-customizable implementation of <see cref="ICustomTypeDescriptor"/>.
 /// </summary>
-public sealed class DynamicTypeDescriptor : CustomTypeDescriptor, ICustomTypeDescriptor, INotifyPropertyChanged
+public class DynamicTypeDescriptor : CustomTypeDescriptor, ICustomTypeDescriptor, INotifyPropertyChanged
 {
     /// <summary>
     /// Occurs when a property value changes.
@@ -46,6 +46,16 @@ public sealed class DynamicTypeDescriptor : CustomTypeDescriptor, ICustomTypeDes
     }
 
     /// <summary>
+    /// Returns an object that contains the property described by the specified property
+    /// descriptor.
+    /// </summary>
+    /// <param name="pd">
+    /// A <see cref="PropertyDescriptor"/> that represents the property whose owner is to be found.
+    /// </param>
+    /// <returns>An object that represents the owner of the specified property.</returns>
+    public override object GetPropertyOwner(PropertyDescriptor pd) => this;
+
+    /// <summary>
     /// Returns a collection of property descriptors for the object represented by this type
     /// descriptor.
     /// </summary>
@@ -71,22 +81,13 @@ public sealed class DynamicTypeDescriptor : CustomTypeDescriptor, ICustomTypeDes
     /// </returns>
     public override PropertyDescriptorCollection GetProperties(Attribute[] attributes)
     {
-        var properties = new List<DynamicPropertyDescriptor>();
+        var properties = _dynamicProperties
+            .Where(p => attributes == null || p.Attributes.Contains(attributes))
+            .ToArray();
 
-        foreach (var property in _dynamicProperties)
-        {
-            if (attributes == null || property.Attributes.Contains(attributes))
-            {
-                if (property.Active)
-                {
-                    properties.Add(property);
-                }
-            }
-        }
+        Array.Sort(properties, _comparer);
 
-        properties.Sort(_comparer);
-
-        return new PropertyDescriptorCollection(properties.ToArray());
+        return new PropertyDescriptorCollection(properties);
     }
 
     /// <summary>

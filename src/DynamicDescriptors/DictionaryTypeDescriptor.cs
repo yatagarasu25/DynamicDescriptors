@@ -8,7 +8,7 @@ namespace DynamicDescriptors;
 /// <summary>
 /// A dictionary-backed implementation of <see cref="ICustomTypeDescriptor"/>.
 /// </summary>
-internal sealed class DictionaryTypeDescriptor : CustomTypeDescriptor, ICustomTypeDescriptor, INotifyPropertyChanged
+public sealed class DictionaryTypeDescriptor : CustomTypeDescriptor, ICustomTypeDescriptor, INotifyPropertyChanged
 {
     /// <summary>
     /// Occurs when a property value changes.
@@ -34,10 +34,7 @@ internal sealed class DictionaryTypeDescriptor : CustomTypeDescriptor, ICustomTy
 
     public DictionaryTypeDescriptor(IDictionary<string, (object, Type)> data)
     {
-        if (data == null)
-        {
-            throw new ArgumentNullException(nameof(data));
-        }
+        Preconditions.CheckNotNull(data, nameof(data));
 
         _data = data.ToDictionary(i => i.Key, i => i.Value.Item1);
         _propertyDescriptors = new List<DictionaryPropertyDescriptor>();
@@ -58,10 +55,7 @@ internal sealed class DictionaryTypeDescriptor : CustomTypeDescriptor, ICustomTy
     /// <param name="types">A dictionary mapping property names to property types.</param>
     public DictionaryTypeDescriptor(IDictionary<string, object> data, IDictionary<string, Type> types)
     {
-        if (data == null)
-        {
-            throw new ArgumentNullException(nameof(data));
-        }
+        Preconditions.CheckNotNull(data, nameof(data));
 
         _data = data;
         _propertyDescriptors = new List<DictionaryPropertyDescriptor>();
@@ -88,10 +82,7 @@ internal sealed class DictionaryTypeDescriptor : CustomTypeDescriptor, ICustomTy
     /// A <see cref="PropertyDescriptor"/> that represents the property whose owner is to be found.
     /// </param>
     /// <returns>An object that represents the owner of the specified property.</returns>
-    public override object GetPropertyOwner(PropertyDescriptor pd)
-    {
-        return this;
-    }
+    public override object GetPropertyOwner(PropertyDescriptor pd) => this;
 
     /// <summary>
     /// Returns a collection of property descriptors for the object represented by this type
@@ -101,10 +92,7 @@ internal sealed class DictionaryTypeDescriptor : CustomTypeDescriptor, ICustomTy
     /// A <see cref="PropertyDescriptorCollection"/> containing the property descriptions for the object
     /// represented by this type descriptor.
     /// </returns>
-    public override PropertyDescriptorCollection GetProperties()
-    {
-        return GetProperties(null);
-    }
+    public override PropertyDescriptorCollection GetProperties() => GetProperties(null);
 
     /// <summary>
     /// Returns a collection of property descriptors for the object represented by this type

@@ -91,10 +91,7 @@ public sealed class DynamicPropertyDescriptor : PropertyDescriptor
     /// </summary>
     /// <param name="component">The component to test for reset capability.</param>
     /// <returns>true if resetting the component changes its value; otherwise, false.</returns>
-    public override bool CanResetValue(object component)
-    {
-        return _descriptor.CanResetValue(component);
-    }
+    public override bool CanResetValue(object component) => _descriptor.CanResetValue(component);
 
     /// <summary>
     /// Gets the name of the category to which the member belongs,
@@ -153,10 +150,7 @@ public sealed class DynamicPropertyDescriptor : PropertyDescriptor
     /// The component with the property for which to retrieve the value.
     /// </param>
     /// <returns>The value of a property for a given component.</returns>
-    public override object GetValue(object component)
-    {
-        return _descriptor.GetValue(component);
-    }
+    public override object GetValue(object component) => _descriptor.GetValue(component);
 
     /// <summary>
     /// Gets a value indicating whether this property is read-only.
@@ -207,10 +201,7 @@ public sealed class DynamicPropertyDescriptor : PropertyDescriptor
     /// The component with the property to be examined for persistence.
     /// </param>
     /// <returns>true if the property should be persisted; otherwise, false.</returns>
-    public override bool ShouldSerializeValue(object component)
-    {
-        return _descriptor.ShouldSerializeValue(component);
-    }
+    public override bool ShouldSerializeValue(object component) => _descriptor.ShouldSerializeValue(component);
 
     #region Fluent interface
 
