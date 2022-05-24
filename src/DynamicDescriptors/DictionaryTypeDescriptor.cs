@@ -8,22 +8,17 @@ namespace DynamicDescriptors;
 /// <summary>
 /// A dictionary-backed implementation of <see cref="ICustomTypeDescriptor"/>.
 /// </summary>
-public sealed class DictionaryTypeDescriptor : CustomTypeDescriptor, ICustomTypeDescriptor, INotifyPropertyChanged
+public class DictionaryTypeDescriptor : PropertyChangedTypeDescriptor
 {
-    /// <summary>
-    /// Occurs when a property value changes.
-    /// </summary>
-    public event PropertyChangedEventHandler PropertyChanged;
-
     /// <summary>
     /// A dictionary mapping property names to property values.
     /// </summary>
-    private readonly IDictionary<string, object> _data;
+    protected readonly IDictionary<string, object> _data;
 
     /// <summary>
     /// A list containing the properties associated with this type descriptor.
     /// </summary>
-    private readonly List<DictionaryPropertyDescriptor> _propertyDescriptors;
+    protected readonly List<DictionaryPropertyDescriptor> _propertyDescriptors;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DictionaryTypeDescriptor"/> class.
@@ -33,6 +28,10 @@ public sealed class DictionaryTypeDescriptor : CustomTypeDescriptor, ICustomType
         : this(data, null) { }
 
     public DictionaryTypeDescriptor(IDictionary<string, (object, Type)> data)
+        : this(data.ToDictionary(k => k.Key, k => (k.Value.Item1, k.Value.Item2, (Attribute[])null)))
+    {
+    }
+    public DictionaryTypeDescriptor(IDictionary<string, (object, Type, Attribute[])> data)
     {
         Preconditions.CheckNotNull(data, nameof(data));
 
@@ -41,7 +40,7 @@ public sealed class DictionaryTypeDescriptor : CustomTypeDescriptor, ICustomType
 
         foreach (var pair in data)
         {
-            var propertyDescriptor = new DictionaryPropertyDescriptor(_data, pair.Key, pair.Value.Item2);
+            var propertyDescriptor = new DictionaryPropertyDescriptor(_data, pair.Key, pair.Value.Item2, pair.Value.Item3);
             propertyDescriptor.AddValueChanged(this, (s, e) => OnPropertyChanged(pair.Key));
 
             _propertyDescriptors.Add(propertyDescriptor);
@@ -108,14 +107,5 @@ public sealed class DictionaryTypeDescriptor : CustomTypeDescriptor, ICustomType
     public override PropertyDescriptorCollection GetProperties(Attribute[] attributes)
     {
         return new PropertyDescriptorCollection(_propertyDescriptors.ToArray());
-    }
-
-    /// <summary>
-    /// Raises the <see cref="PropertyChanged"/> event.
-    /// </summary>
-    /// <param name="propertyName">The name of the property that changed.</param>
-    private void OnPropertyChanged(string propertyName)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

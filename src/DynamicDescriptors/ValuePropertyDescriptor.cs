@@ -1,41 +1,28 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 
 namespace DynamicDescriptors;
 
-/// <summary>
-/// A dictionary-backed implementation of <see cref="PropertyDescriptor"/>.
-/// </summary>
-public sealed class DictionaryPropertyDescriptor : PropertyDescriptor
+public class ValuePropertyDescriptor
 {
-    /// <summary>
-    /// A dictionary mapping property names to property values.
-    /// </summary>
-    private readonly IDictionary<string, object> _data;
-
-    /// <summary>
-    /// The name of the property.
-    /// </summary>
-    private readonly string _propertyName;
-
-    /// <summary>
-    /// The type of the property.
-    /// </summary>
-    private readonly Type _propertyType;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="DictionaryPropertyDescriptor"/> class.
-    /// </summary>
-    /// <param name="data">The dictionary that backs this property descriptor.</param>
-    /// <param name="propertyName">The name of the property.</param>
-    /// <param name="propertyType">The type of the property.</param>
-    public DictionaryPropertyDescriptor(IDictionary<string, object> data, string propertyName, Type propertyType, Attribute[] attrs = null)
-        : base(Preconditions.CheckNotNullOrEmpty(propertyName, nameof(propertyName)), attrs)
+    public static PropertyDescriptor Dynamic(string name, object initialValue, Type type)
     {
-        _data = data ?? throw new ArgumentNullException(nameof(data));
-        _propertyName = propertyName;
-        _propertyType = propertyType ?? throw new ArgumentNullException(nameof(propertyType));
+        if (type == typeof(bool)) return new ValuePropertyDescriptor<bool>(name, (bool)initialValue);
+        if (type == typeof(int)) return new ValuePropertyDescriptor<int>(name, (int)initialValue);
+        if (type == typeof(string)) return new ValuePropertyDescriptor<string>(name, (string)initialValue);
+
+        return new ValuePropertyDescriptor<string>(name, (string)initialValue);
+    }
+}
+
+public sealed class ValuePropertyDescriptor<T> : PropertyDescriptor
+{
+    private T _value;
+
+    public ValuePropertyDescriptor(string name, T initialValue, Attribute[] attrs = null)
+        : base(name, attrs)
+    {
+        _value = initialValue;
     }
 
     /// <summary>
@@ -57,10 +44,7 @@ public sealed class DictionaryPropertyDescriptor : PropertyDescriptor
     /// The component with the property for which to retrieve the value.
     /// </param>
     /// <returns>The value of a property for a given component.</returns>
-    public override object GetValue(object component)
-    {
-        return _data[_propertyName];
-    }
+    public override object GetValue(object component) => _value;
 
     /// <summary>
     /// Gets a value indicating whether this property is read-only.
@@ -70,7 +54,7 @@ public sealed class DictionaryPropertyDescriptor : PropertyDescriptor
     /// <summary>
     /// Gets the type of the property.
     /// </summary>
-    public override Type PropertyType => _propertyType;
+    public override Type PropertyType => typeof(T);
 
     /// <summary>
     /// Resets the value for this property of the component to the default value.
@@ -80,7 +64,7 @@ public sealed class DictionaryPropertyDescriptor : PropertyDescriptor
     /// </param>
     public override void ResetValue(object component)
     {
-        _data[_propertyName] = null;
+        _value = default;
         OnValueChanged(component, EventArgs.Empty);
     }
 
@@ -95,7 +79,7 @@ public sealed class DictionaryPropertyDescriptor : PropertyDescriptor
     /// </param>
     public override void SetValue(object component, object value)
     {
-        _data[_propertyName] = value;
+        _value = (T)value;
         OnValueChanged(component, EventArgs.Empty);
     }
 
